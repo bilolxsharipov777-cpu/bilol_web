@@ -13,6 +13,9 @@ dp = Dispatcher()
 @dp.message(Command("kanalga_tashash"))
 async def send_to_channel(message: Message):
     ...
+    @dp.message(Command("start"))
+async def start_command(message: Message):
+    await message.answer("Salom! Botimiz ishga tushdi. 🚀")
 
 # 3. Eng oxirida botni ishga tushiramiz:
 async def main():
