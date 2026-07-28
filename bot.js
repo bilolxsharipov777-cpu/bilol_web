@@ -264,8 +264,20 @@ bot.on('contact', async (ctx) => {
     await ctx.reply("Rahmat! Ma'lumotlaringiz qabul qilindi. Tez orada bog'lanamiz! ✅");
 });
 
+// --- MENU BUTTON (Doimiy pastda turadigan sayt tugmasi) ---
+bot.telegram.setChatMenuButton({
+    menuButton: {
+        type: 'web_app',
+        text: 'Open', 
+        url: 'https://fastidious-starburst-7aa5e3.netlify.app/' // O'zingizning asosiy saytingiz linki
+    }
+}).then(() => {
+    console.log("Chat menu tugmasi muvaffaqiyatli o'rnatildi! 🌐");
+});
+
 bot.launch();
 console.log("Bot mutlaqo bepul rejimda ishga tushdi! 🚀");
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
