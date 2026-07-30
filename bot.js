@@ -1,9 +1,9 @@
 const { Telegraf, Markup } = require('telegraf');
 
-const BOT_TOKEN = '7993407351:AAEXWz5AmSl0HyPyOgO8VxkBEavKFGYpiIU';
-const ADMIN_ID = '867717817';
+const BOT_TOKEN = "7993407351:AAE4ORrWoe-16bO6rs6FFMGx5cC_5ofMeOA";
+const ADMIN_ID = 867717817;
 
-const bot = new Telegraf("7993407351:AAEXWz5AmSl0HyPyOgO8VxkBEavKFGYpiIU");
+const bot = new Telegraf("7993407351:AAE4ORrWoe-16bO6rs6FFMGx5cC_5ofMeOA");
 const userState = {};
 const allUsers = new Set();
 
@@ -421,7 +421,91 @@ bot.on('contact', async (ctx) => {
 });
 
 bot.launch();
-console.log("🔥 Xatolik tuzatilib, bot muvaffaqiyatli ishga tushdi!");
+// ... oldingi barcha xizmatlar, menyular va tugmalar tugagan joyga (bot.launch() dan oldin) quyidagilarni yozasiz:
+
+// ================= PROFESSIONAL ADMIN PANEL =================
+
+
+bot.command("admin", (ctx) => {
+    if (ctx.from.id !== ADMIN_ID) return;
+
+    const adminKb = Markup.inlineKeyboard([
+        [Markup.button.callback("📊 Bot statistikasi", "adm_stats")],
+        [Markup.button.callback("📢 Hammaga xabar yuborish (Broadcast)", "adm_broadcast")],
+        [Markup.button.callback("🔄 Bazani tozalash (Bloklanganlar)", "adm_clean")]
+    ]);
+
+    ctx.reply("👑 Professional Boshqaruv Paneliga xush kelibsiz!\n\nKerakli amalni tanlang:", { parse_mode: "Markdown", ...adminKb });
+});
+
+bot.action("adm_stats", (ctx) => {
+    if (ctx.from.id !== ADMIN_ID) return;
+    ctx.answerCbQuery();
+    
+    ctx.editMessageText(
+        `📊 Bot statistikasi va holati:\n\n` +
+        `👥 Jami foydalanuvchilar: \`${allUsers.size}\` ta\n` +
+        `🤖 Bot holati: \`Ishlayapti (Online) ⚡️\`\n` +
+        `⚙️ Versiya: \`v2.5 Professional\``,
+        { 
+            parse_mode: "Markdown",
+            ...Markup.inlineKeyboard([
+                [Markup.button.callback("🔙 Orqaga", "adm_back")]
+            ])
+        }
+    );
+});
+
+bot.action("adm_back", (ctx) => {
+    if (ctx.from.id !== ADMIN_ID) return;
+    ctx.answerCbQuery();
+
+    const adminKb = Markup.inlineKeyboard([
+        [Markup.button.callback("📊 Bot statistikasi", "adm_stats")],
+        [Markup.button.callback("📢 Hammaga xabar yuborish (Broadcast)", "adm_broadcast")],
+        [Markup.button.callback("🔄 Bazani tozalash (Bloklanganlar)", "adm_clean")]
+    ]);
+
+    ctx.editMessageText("👑 Professional Boshqaruv Paneliga xush kelibsiz!\n\nKerakli amalni tanlang:", { parse_mode: "Markdown", ...adminKb });
+});
+
+bot.action("adm_broadcast", (ctx) => {
+    if (ctx.from.id !== ADMIN_ID) return;
+    ctx.answerCbQuery();
+    
+    if (!userState[ctx.from.id]) userState[ctx.from.id] = {};
+    userState[ctx.from.id].waitingForBroadcast = true;
+    
+    ctx.reply("📢 E'lon yuborish rejimi yoqildi.\n\nBarcha foydalanuvchilarga tarqatmoqchi bo'lgan matn yoki rasmingizni yuboring:", { parse_mode: "Markdown" });
+});
+
+bot.action("adm_clean", async (ctx) => {
+    if (ctx.from.id !== ADMIN_ID) return;
+    ctx.answerCbQuery();
+    
+    let activeCount = 0;
+    let removedCount = 0;
+
+    await ctx.reply("⏳ Bazadagi foydalanuvchilar tekshirilmoqda, iltimos kuting...");
+
+    for (const id of allUsers) {
+        try {
+            await bot.telegram.sendChatAction(id, "typing");
+            activeCount++;
+        } catch (e) {
+            allUsers.delete(id);
+            removedCount++;
+        }
+    }
+
+    ctx.reply(`✅ Tozalash yakunlandi!\n\n🟢 Faol foydalanuvchilar: ${activeCount} ta\n🔴 O'chirilganlar (Bloklaganlar): ${removedCount} ta`, { parse_mode: "Markdown" });
+});
+
+// ============================================================
+
+// Botni ishga tushirish qismi bundan keyin keladi:
+bot.launch();
+console.log("🔥 Professional bot muvaffaqiyatli ishga tushdi!");
+
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
